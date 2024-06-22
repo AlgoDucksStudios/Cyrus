@@ -1,0 +1,2 @@
+D:\libs\Cyrus\Cyrus.Requests\obj\Debug\Cyrus.Requests.csproj.AssemblyReference.cache
+D:\libs\Cyrus\Cyrus.Requests\obj\Debug\Cyrus.Requests.csproj.CoreCompileInputs.cache

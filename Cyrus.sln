@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "tests\tests.csproj", "{B5D002F0-D554-4E22-B806-B56751D4D04C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyrus.Requests", "Cyrus.Requests\Cyrus.Requests.csproj", "{7271FD68-2C43-4624-815E-D496F4B1501B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cyrus.DB", "DBUtils\Cyrus.DB.csproj", "{91492BC9-AF3F-46D7-85BA-ED1F5E843DD9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B5D002F0-D554-4E22-B806-B56751D4D04C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5D002F0-D554-4E22-B806-B56751D4D04C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5D002F0-D554-4E22-B806-B56751D4D04C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5D002F0-D554-4E22-B806-B56751D4D04C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7271FD68-2C43-4624-815E-D496F4B1501B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7271FD68-2C43-4624-815E-D496F4B1501B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7271FD68-2C43-4624-815E-D496F4B1501B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7271FD68-2C43-4624-815E-D496F4B1501B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{91492BC9-AF3F-46D7-85BA-ED1F5E843DD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{91492BC9-AF3F-46D7-85BA-ED1F5E843DD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{91492BC9-AF3F-46D7-85BA-ED1F5E843DD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{91492BC9-AF3F-46D7-85BA-ED1F5E843DD9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FC8C3612-C2B0-489E-B3D9-A2346BC7FE16}
+	EndGlobalSection
+EndGlobal
