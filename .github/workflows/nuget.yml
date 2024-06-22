@@ -31,10 +31,13 @@ jobs:
     - name: Restore dependencies
       run: |
         foreach ($dir in Get-ChildItem -Directory) {
-          dotnet restore $dir.FullName
+          if ($dir.Name -notin @("packages", "tests", "Cyrus.DB")) {
+            Set-Location -Path $dir.FullName
+            dotnet restore
+          }
         }
 
-    - name: Build and publish NuGet packages
+    - name: Build and pack NuGet packages
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
@@ -43,8 +46,16 @@ jobs:
             Set-Location -Path $dir.FullName
             dotnet build -c Release
             dotnet pack -c Release --output ./artifacts
-            dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
-            Set-Location -Path $PSScriptRoot
+
+            # Find the generated nupkg file
+            $nupkgFile = Get-ChildItem -Filter '*.nupkg' -Path "./artifacts" | Select-Object -First 1
+
+            # Check if the nupkg file exists
+            if ($nupkgFile) {
+              dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+            } else {
+              Write-Host "No nupkg file found in $($dir.FullName)"
+            }
           }
         }
 
@@ -53,7 +64,7 @@ jobs:
         $excluded_dirs = @("packages", "tests", "Cyrus.DB")
         foreach ($dir in Get-ChildItem -Directory) {
           if ($excluded_dirs -notcontains $dir.Name) {
-            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
-            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\obj"
+            Remove-Item -Recurse -Force -ErrorAction Ignore "$($dir.FullName)\bin"
+            Remove-Item -Recurse -Force -ErrorAction Ignore "$($dir.FullName)\obj"
           }
         }
