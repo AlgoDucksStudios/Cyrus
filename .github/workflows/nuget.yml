@@ -15,7 +15,7 @@ jobs:
 
     - name: Clean up build files (before)
       run: |
-        $excluded_dirs = @("packages", "tests")
+        $excluded_dirs = @("packages", "tests", "Cyrus.DB")
         Get-ChildItem -Directory | ForEach-Object {
           if ($excluded_dirs -notcontains $_.Name) {
             Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
@@ -29,27 +29,28 @@ jobs:
         dotnet-version: '6.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore
+      run: |
+        foreach ($dir in Get-ChildItem -Directory) {
+          dotnet restore $dir.FullName
+        }
 
-    - name: Publish NuGet packages
+    - name: Build and publish NuGet packages
       env:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
-        $excluded_dirs = @("packages", "tests")
-        Get-ChildItem -Directory | ForEach-Object {
-          if ($excluded_dirs -notcontains $_.Name) {
-            Set-Location $_.FullName
-            dotnet pack -c Release
-            dotnet nuget push "bin\Release\*.nupkg" -k $env:NUGET_API_KEY -s https://api.nuget.org/v3/index.json
-            Set-Location ..
+        foreach ($dir in Get-ChildItem -Directory) {
+          if ($dir.Name -notin @("packages", "tests", "Cyrus.DB")) {
+            dotnet build $dir.FullName --configuration Release
+            dotnet pack $dir.FullName -c Release --output ./artifacts
+            dotnet nuget push ./artifacts/*.nupkg -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
           }
         }
 
     - name: Clean up build files (after)
       run: |
-        $excluded_dirs = @("packages", "tests")
-        Get-ChildItem -Directory | ForEach-Object {
-          if ($excluded_dirs -notcontains $_.Name) {
+        $excluded_dirs = @("packages", "tests", "Cyrus.DB")
+        foreach ($dir in Get-ChildItem -Directory) {
+          if ($excluded_dirs -notcontains $dir.Name) {
             Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
             Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\obj"
           }
