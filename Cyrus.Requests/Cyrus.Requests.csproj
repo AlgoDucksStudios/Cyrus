@@ -12,6 +12,18 @@
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <PackageId>Cyrus.Requests</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Alireza Abedini</Authors>
+    <Company>Persian Immortal Studios</Company>
+    <Product>Cyrus.Requests</Product>
+    <Description>A utility library for making HTTP requests.</Description>
+    <PackageTags>HTTP, Requests, Utility</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/yourrepo/Cyrus.Requests</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/yourrepo/Cyrus.Requests</PackageProjectUrl>
+    <PackageIconUrl>https://raw.githubusercontent.com/yourrepo/Cyrus.Requests/main/icon.png</PackageIconUrl>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

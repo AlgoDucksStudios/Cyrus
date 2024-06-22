@@ -1,0 +1,8 @@
+D:\libs\Cyrus\tests\bin\Debug\tests.exe.config
+D:\libs\Cyrus\tests\bin\Debug\tests.exe
+D:\libs\Cyrus\tests\bin\Debug\tests.pdb
+D:\libs\Cyrus\tests\obj\Debug\tests.csproj.AssemblyReference.cache
+D:\libs\Cyrus\tests\obj\Debug\tests.csproj.SuggestedBindingRedirects.cache
+D:\libs\Cyrus\tests\obj\Debug\tests.csproj.CoreCompileInputs.cache
+D:\libs\Cyrus\tests\obj\Debug\tests.exe
+D:\libs\Cyrus\tests\obj\Debug\tests.pdb
