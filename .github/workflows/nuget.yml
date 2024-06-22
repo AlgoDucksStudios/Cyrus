@@ -1,0 +1,56 @@
+name: Publish NuGet Packages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Clean up build files (before)
+      run: |
+        $excluded_dirs = @("packages", "tests")
+        Get-ChildItem -Directory | ForEach-Object {
+          if ($excluded_dirs -notcontains $_.Name) {
+            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
+            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\obj"
+          }
+        }
+      
+    - name: Set up .NET Framework
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '4.8.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Publish NuGet packages
+      env:
+        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+      run: |
+        $excluded_dirs = @("packages", "tests")
+        Get-ChildItem -Directory | ForEach-Object {
+          if ($excluded_dirs -notcontains $_.Name) {
+            Set-Location $_.FullName
+            dotnet pack -c Release
+            dotnet nuget push "bin\Release\*.nupkg" -k $env:NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+            Set-Location ..
+          }
+        }
+
+    - name: Clean up build files (after)
+      run: |
+        $excluded_dirs = @("packages", "tests")
+        Get-ChildItem -Directory | ForEach-Object {
+          if ($excluded_dirs -notcontains $_.Name) {
+            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
+            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\obj"
+          }
+        }
