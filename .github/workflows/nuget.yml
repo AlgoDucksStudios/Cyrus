@@ -42,7 +42,7 @@ jobs:
         NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
       run: |
         foreach ($dir in Get-ChildItem -Directory) {
-          if ($dir.Name -notin @("packages", "tests", "Cyrus.DB")) {
+          if ($dir.Name -notin @("packages", "tests", "Cyrus.DB", ".github", ".vs")) {
             Set-Location -Path $dir.FullName
             # Check if there's a project file (.csproj or .sln)
             $projectFile = Get-ChildItem -Path . -Filter '*.csproj' | Select-Object -First 1
