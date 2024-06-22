@@ -45,17 +45,14 @@ jobs:
           if ($dir.Name -notin @("packages", "tests", "Cyrus.DB")) {
             Set-Location -Path $dir.FullName
             dotnet build -c Release
-            dotnet pack -c Release --output ./artifacts
-
-            # Find the generated nupkg file
-            $nupkgFile = Get-ChildItem -Filter '*.nupkg' -Path "./artifacts" | Select-Object -First 1
-
-            # Check if the nupkg file exists
+            dotnet pack -c Release
+            $nupkgFile = Get-ChildItem -Filter '*.nupkg' | Select-Object -First 1
             if ($nupkgFile) {
               dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
             } else {
               Write-Host "No nupkg file found in $($dir.FullName)"
             }
+            Set-Location -Path $PSScriptRoot
           }
         }
 
