@@ -45,8 +45,8 @@ jobs:
           if ($dir.Name -notin @("packages", "tests", "Cyrus.DB")) {
             Set-Location -Path $dir.FullName
             dotnet build -c Release
-            dotnet pack -c Release
-            $nupkgFile = Get-ChildItem -Filter '*.nupkg' | Select-Object -First 1
+            dotnet pack -c Release --output ./bin/Release
+            $nupkgFile = Get-ChildItem -Path "./bin/Release" -Filter '*.nupkg' | Select-Object -First 1
             if ($nupkgFile) {
               dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
             } else {
