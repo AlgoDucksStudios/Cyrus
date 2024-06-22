@@ -44,13 +44,19 @@ jobs:
         foreach ($dir in Get-ChildItem -Directory) {
           if ($dir.Name -notin @("packages", "tests", "Cyrus.DB")) {
             Set-Location -Path $dir.FullName
-            dotnet build -c Release
-            dotnet pack -c Release --output ./bin/Release
-            $nupkgFile = Get-ChildItem -Path "./bin/Release" -Filter '*.nupkg' | Select-Object -First 1
-            if ($nupkgFile) {
-              dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+            # Check if there's a project file (.csproj or .sln)
+            $projectFile = Get-ChildItem -Path . -Filter '*.csproj' | Select-Object -First 1
+            if ($projectFile) {
+              dotnet build -c Release
+              dotnet pack -c Release --output ./bin/Release
+              $nupkgFile = Get-ChildItem -Path "./bin/Release" -Filter '*.nupkg' | Select-Object -First 1
+              if ($nupkgFile) {
+                dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+              } else {
+                Write-Host "No nupkg file found in $($dir.FullName)"
+              }
             } else {
-              Write-Host "No nupkg file found in $($dir.FullName)"
+              Write-Host "No project file found in $($dir.FullName)"
             }
             Set-Location -Path $PSScriptRoot
           }
