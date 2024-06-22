@@ -12,7 +12,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Cyrus.Requests</RootNamespace>
     <AssemblyName>Cyrus.Requests</AssemblyName>
-    <TargetFrameworkVersion>v6.0.x</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <PackageId>Cyrus.Requests</PackageId>
