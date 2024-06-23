@@ -40,6 +40,14 @@ jobs:
           }
           $projects | ForEach-Object { Write-Host "Found project: $($_.FullName)" }
 
+      - name: Find MSBuild path
+        id: msbuild-path
+        run: |
+          $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $msbuildPath = & $vswherePath -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+          Write-Output "MSBuild path: $msbuildPath"
+          echo "::set-output name=msbuild_path::$msbuildPath"
+
       - name: Restore dependencies
         run: |
           $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
@@ -52,7 +60,7 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
-          $msbuildPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
+          $msbuildPath = "${{ steps.msbuild-path.outputs.msbuild_path }}"
           foreach ($project in $projects) {
             & $msbuildPath $project.FullName /p:Configuration=Release
             nuget pack $project.FullName -OutputDirectory ./bin/Release
