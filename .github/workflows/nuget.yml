@@ -20,7 +20,7 @@ jobs:
 
       - name: Clean up build files (before)
         run: |
-          $excluded_dirs = @("packages", "tests", "Cyrus.DB", ".vs", ".github")
+          $excluded_dirs = @("packages", "tests", "Cyrus.DB")
           Get-ChildItem -Directory | ForEach-Object {
             if ($excluded_dirs -notcontains $_.Name) {
               Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
@@ -28,9 +28,18 @@ jobs:
             }
           }
 
+      - name: List .csproj files
+        run: |
+          $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
+          if ($projects.Count -eq 0) {
+            Write-Error "No .csproj files found."
+            exit 1
+          }
+          $projects | ForEach-Object { Write-Host "Found project: $($_.FullName)" }
+
       - name: Restore dependencies
         run: |
-          $projects = Get-ChildItem -Recurse -Filter *.csproj
+          $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
           foreach ($project in $projects) {
             dotnet restore $project.FullName
           }
@@ -39,8 +48,7 @@ jobs:
         env:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          $excluded_dirs = @("packages", "tests", "Cyrus.DB", ".vs", ".github")
-          $projects = Get-ChildItem -Recurse -Filter *.csproj
+          $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
           foreach ($project in $projects) {
             dotnet build $project.FullName -c Release
             dotnet pack $project.FullName -c Release --output ./bin/Release
@@ -52,7 +60,7 @@ jobs:
 
       - name: Clean up build files (after)
         run: |
-          $excluded_dirs = @("packages", "tests", "Cyrus.DB", ".vs", ".github")
+          $excluded_dirs = @("packages", "tests", "Cyrus.DB")
           foreach ($dir in Get-ChildItem -Directory) {
             if ($excluded_dirs -notcontains $dir.Name) {
               Remove-Item -Recurse -Force -ErrorAction Ignore "$($dir.FullName)\bin"
