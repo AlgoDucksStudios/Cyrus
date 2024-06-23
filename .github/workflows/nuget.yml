@@ -52,8 +52,9 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
+          $msbuildPath = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe"
           foreach ($project in $projects) {
-            msbuild $project.FullName /p:Configuration=Release
+            & $msbuildPath $project.FullName /p:Configuration=Release
             nuget pack $project.FullName -OutputDirectory ./bin/Release
           }
           $nupkgFiles = Get-ChildItem -Recurse -Filter '*.nupkg'
