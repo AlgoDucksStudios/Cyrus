@@ -16,7 +16,7 @@ jobs:
       - name: Set up .NET
         uses: actions/setup-dotnet@v2
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '6.0.x'  # Update to the correct version if needed
 
       - name: Install NuGet
         uses: NuGet/setup-nuget@v1.0.5
@@ -40,14 +40,6 @@ jobs:
           }
           $projects | ForEach-Object { Write-Host "Found project: $($_.FullName)" }
 
-      - name: Find MSBuild path
-        id: msbuild-path
-        run: |
-          $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $msbuildPath = & $vswherePath -latest -products * -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
-          Write-Output "MSBuild path: $msbuildPath"
-          echo "::set-output name=msbuild_path::$msbuildPath"
-
       - name: Restore dependencies
         run: |
           $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
@@ -60,14 +52,15 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
           $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
-          $msbuildPath = "${{ steps.msbuild-path.outputs.msbuild_path }}"
           foreach ($project in $projects) {
-            & $msbuildPath $project.FullName /p:Configuration=Release
-            nuget pack $project.FullName -OutputDirectory ./bin/Release
-          }
-          $nupkgFiles = Get-ChildItem -Recurse -Filter '*.nupkg'
-          foreach ($nupkgFile in $nupkgFiles) {
-            nuget push "$($nupkgFile.FullName)" -ApiKey $NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+            dotnet build $project.FullName -c Release
+            dotnet pack $project.FullName -c Release --output ./bin/Release
+            $nupkgFile = Get-ChildItem -Path "./bin/Release" -Filter '*.nupkg' | Select-Object -First 1
+            if ($nupkgFile) {
+              nuget push "$($nupkgFile.FullName)" -ApiKey $NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
+            } else {
+              Write-Host "No nupkg file found in $($project.FullName)"
+            }
           }
 
       - name: Clean up build files (after)
