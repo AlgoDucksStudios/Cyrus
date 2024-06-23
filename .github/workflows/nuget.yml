@@ -10,64 +10,48 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Clean up build files (before)
-      run: |
-        $excluded_dirs = @("packages", "tests", "Cyrus.DB")
-        Get-ChildItem -Directory | ForEach-Object {
-          if ($excluded_dirs -notcontains $_.Name) {
-            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
-            Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\obj"
-          }
-        }
-      
-    - name: Set up .NET Framework
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '6.0.x'
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
 
-    - name: Restore dependencies
-      run: |
-        foreach ($dir in Get-ChildItem -Directory) {
-          if ($dir.Name -notin @("packages", "tests", "Cyrus.DB")) {
-            Set-Location -Path $dir.FullName
-            dotnet restore
-          }
-        }
-
-    - name: Build and pack NuGet packages
-      env:
-        NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-      run: |
-        foreach ($dir in Get-ChildItem -Directory) {
-          if ($dir.Name -notin @("packages", "tests", "Cyrus.DB", ".github", ".vs")) {
-            Set-Location -Path $dir.FullName
-            # Check if there's a project file (.csproj or .sln)
-            $projectFile = Get-ChildItem -Path . -Filter '*.csproj' | Select-Object -First 1
-            if ($projectFile) {
-              dotnet build -c Release
-              dotnet pack -c Release --output ./bin/Release
-              $nupkgFile = Get-ChildItem -Path "./bin/Release" -Filter '*.nupkg' | Select-Object -First 1
-              if ($nupkgFile) {
-                dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
-              } else {
-                Write-Host "No nupkg file found in $($dir.FullName)"
-              }
-            } else {
-              Write-Host "No project file found in $($dir.FullName)"
+      - name: Clean up build files (before)
+        run: |
+          $excluded_dirs = @("packages", "tests", "Cyrus.DB", ".vs", ".github")
+          Get-ChildItem -Directory | ForEach-Object {
+            if ($excluded_dirs -notcontains $_.Name) {
+              Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\bin"
+              Remove-Item -Recurse -Force -ErrorAction Ignore "$($_.FullName)\obj"
             }
-            Set-Location -Path $PSScriptRoot
           }
-        }
 
-    - name: Clean up build files (after)
-      run: |
-        $excluded_dirs = @("packages", "tests", "Cyrus.DB")
-        foreach ($dir in Get-ChildItem -Directory) {
-          if ($excluded_dirs -notcontains $dir.Name) {
-            Remove-Item -Recurse -Force -ErrorAction Ignore "$($dir.FullName)\bin"
-            Remove-Item -Recurse -Force -ErrorAction Ignore "$($dir.FullName)\obj"
+      - name: Restore dependencies
+        run: dotnet restore **/*.csproj
+
+      - name: Build and pack NuGet packages
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: |
+          $excluded_dirs = @("packages", "tests", "Cyrus.DB", ".vs", ".github")
+          $projects = Get-ChildItem -Recurse -Filter *.csproj
+          foreach ($project in $projects) {
+            dotnet build $project.FullName -c Release
+            dotnet pack $project.FullName -c Release --output ./bin/Release
+            $nupkgFiles = Get-ChildItem -Path "./bin/Release" -Filter '*.nupkg'
+            foreach ($nupkgFile in $nupkgFiles) {
+              dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
+            }
           }
-        }
+
+      - name: Clean up build files (after)
+        run: |
+          $excluded_dirs = @("packages", "tests", "Cyrus.DB", ".vs", ".github")
+          foreach ($dir in Get-ChildItem -Directory) {
+            if ($excluded_dirs -notcontains $dir.Name) {
+              Remove-Item -Recurse -Force -ErrorAction Ignore "$($dir.FullName)\bin"
+              Remove-Item -Recurse -Force -ErrorAction Ignore "$($dir.FullName)\obj"
+            }
+          }
