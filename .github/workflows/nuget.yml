@@ -18,6 +18,9 @@ jobs:
         with:
           dotnet-version: '6.0.x'
 
+      - name: Install NuGet
+        uses: NuGet/setup-nuget@v1.0.5
+
       - name: Clean up build files (before)
         run: |
           $excluded_dirs = @("packages", "tests", "Cyrus.DB")
@@ -41,7 +44,7 @@ jobs:
         run: |
           $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
           foreach ($project in $projects) {
-            dotnet restore $project.FullName
+            nuget restore $project.FullName
           }
 
       - name: Build and pack NuGet packages
@@ -50,12 +53,12 @@ jobs:
         run: |
           $projects = Get-ChildItem -Recurse -Filter *.csproj | Where-Object { $_.FullName -notmatch "Cyrus.DB" }
           foreach ($project in $projects) {
-            dotnet build $project.FullName -c Release
-            dotnet pack $project.FullName -c Release --output ./bin/Release
-            $nupkgFiles = Get-ChildItem -Path "./bin/Release" -Filter '*.nupkg'
-            foreach ($nupkgFile in $nupkgFiles) {
-              dotnet nuget push "$($nupkgFile.FullName)" -k $NUGET_API_KEY -s https://api.nuget.org/v3/index.json
-            }
+            msbuild $project.FullName /p:Configuration=Release
+            nuget pack $project.FullName -OutputDirectory ./bin/Release
+          }
+          $nupkgFiles = Get-ChildItem -Recurse -Filter '*.nupkg'
+          foreach ($nupkgFile in $nupkgFiles) {
+            nuget push "$($nupkgFile.FullName)" -ApiKey $NUGET_API_KEY -Source https://api.nuget.org/v3/index.json
           }
 
       - name: Clean up build files (after)
