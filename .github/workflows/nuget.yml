@@ -29,7 +29,11 @@ jobs:
           }
 
       - name: Restore dependencies
-        run: dotnet restore **/*.csproj
+        run: |
+          $projects = Get-ChildItem -Recurse -Filter *.csproj
+          foreach ($project in $projects) {
+            dotnet restore $project.FullName
+          }
 
       - name: Build and pack NuGet packages
         env:
