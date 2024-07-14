@@ -192,3 +192,5 @@ Console.WriteLine($"Status: {response.statusCode}, Response: {response.response}
 ```
 ## License
 This project is licensed under the MIT License.
+___
+Made with ❤ at [AlgoDucks Studios]("https://github.com/AlgoDucksStudios")
